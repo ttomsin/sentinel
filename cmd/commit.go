@@ -206,11 +206,32 @@ func runCommit(message string, proofOnly bool) error {
 		green.Println("done.")
 	}
 
-	// ── Anchor to Bitcoin via OpenTimestamps — always runs ────────────────────
-	yellow.Println("  → Anchoring to Bitcoin (OpenTimestamps, async)...")
+	// ── Anchor to Bitcoin via OpenTimestamps ─────────────────────────────────
+	// Run with a 10-second timeout — enough time for the HTTP call to complete.
+	// If it times out, the user can run 'sentinel proof upgrade' later.
+	// We do NOT use a fire-and-forget goroutine because the process exits
+	// before the goroutine completes, so the .ots file never gets saved.
+	yellow.Print("  → Anchoring to Bitcoin (OpenTimestamps)... ")
+
+	anchorDone := make(chan error, 1)
 	go func(rh, hf string) {
-		_, _ = blockchain.AnchorHash(rh, hf)
+		_, err := blockchain.AnchorHash(rh, hf)
+		anchorDone <- err
 	}(rootHash, hashFile)
+
+	// Wait up to 10 seconds for the HTTP call
+	select {
+	case anchorErr := <-anchorDone:
+		if anchorErr != nil {
+			yellow.Println("pending.")
+			yellow.Printf("     (OTS server unreachable — run 'sentinel proof upgrade' later)\n")
+		} else {
+			green.Println("done. ✓")
+		}
+	case <-time.After(10 * time.Second):
+		yellow.Println("pending.")
+		yellow.Printf("     (took too long — run 'sentinel proof upgrade' in a few minutes)\n")
+	}
 
 	// ── Summary ───────────────────────────────────────────────────────────────
 	fmt.Println()
@@ -228,7 +249,7 @@ func runCommit(message string, proofOnly bool) error {
 		green.Printf("  Mode:        full protection (encrypted on GitHub)\n")
 	}
 
-	yellow.Printf("  Blockchain:  anchoring to Bitcoin in background...\n")
+	yellow.Printf("  Blockchain:  see anchor status above\n")
 	fmt.Println()
 	fmt.Println("  Run 'sentinel push'         to push to remote.")
 	fmt.Println("  Run 'sentinel proof status' to check Bitcoin confirmation.")
