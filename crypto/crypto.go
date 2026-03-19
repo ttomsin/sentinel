@@ -163,6 +163,10 @@ func HashFiles(paths []string) ([]FileHash, error) {
 
 // SaveHashes writes a JSON hash record to .sentinel/hashes/ and returns (filename, rootHash, error)
 func SaveHashes(hashes []FileHash, ts time.Time) (string, string, error) {
+	// Ensure hashes directory exists — created by sentinel init but may be missing
+	if err := os.MkdirAll(HashDir, 0755); err != nil {
+		return "", "", fmt.Errorf("failed to create hashes directory: %w", err)
+	}
 	// Compute root hash — hash of all individual hashes combined
 	combined := ""
 	for _, h := range hashes {

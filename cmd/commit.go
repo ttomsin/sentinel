@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"os"
 	"strings"
 	"time"
 
@@ -20,19 +21,19 @@ var commitCmd = &cobra.Command{
 DEFAULT MODE — full protection:
   1. SHA-256 hash every source file     → proof of authorship
   2. AES-256-GCM encrypt every file     → AI sees only noise on GitHub
-  3. git commit (encrypted blobs)
-  4. Decrypt locally — you keep working normally
-  5. Anchor root hash to Bitcoin        → free, permanent, immutable proof
+  3. Anchor root hash to Bitcoin        → free, permanent, immutable proof
+  4. git commit (encrypted blobs + proof files)
+  5. Decrypt locally — you keep working normally
 
 PROOF-ONLY MODE (--proof-only):
   Use this for open source projects that want authorship proof
   WITHOUT encrypting the code. Perfect for Sentinel itself.
 
   1. SHA-256 hash every source file     → proof of authorship
-  2. git commit (plaintext — readable by everyone)
-  3. Anchor root hash to Bitcoin        → free, permanent, immutable proof
+  2. Anchor root hash to Bitcoin        → free, permanent, immutable proof
+  3. git commit (plaintext + proof files)
 
-  No encryption. Code stays readable. Authorship is still proven on Bitcoin.
+  No encryption. Code stays readable. Authorship proven on Bitcoin.
 
 Examples:
   sentinel commit -m "add feature"              # full protection
@@ -68,6 +69,26 @@ func runCommit(message string, proofOnly bool) error {
 		bold.Println("  Sentinel Commit")
 	}
 	fmt.Println()
+
+	// ── Check .sentinel/ exists FIRST — before touching anything ─────────────
+	// If .sentinel/ doesn't exist, stop immediately. Don't stage, don't hash,
+	// don't touch the git staging area at all.
+	yellow.Print("  → Checking Sentinel is initialized... ")
+	if _, err := os.Stat(".sentinel"); os.IsNotExist(err) {
+		red.Println("NOT FOUND")
+		fmt.Println()
+		fmt.Println("  .sentinel/ directory not found.")
+		fmt.Println("  Sentinel has not been initialized in this repository.")
+		fmt.Println()
+		cyan.Println("  Run these commands first:")
+		cyan.Println("    sentinel init")
+		if !proofOnly {
+			cyan.Println("    sentinel keygen")
+		}
+		fmt.Println()
+		return fmt.Errorf("sentinel not initialized — run 'sentinel init' first")
+	}
+	green.Println("found.")
 
 	// ── Key check — only needed for encryption mode ───────────────────────────
 	var aesKey []byte
@@ -122,7 +143,7 @@ func runCommit(message string, proofOnly bool) error {
 	}
 	green.Printf("%d files found.\n", len(files))
 
-	// ── SHA-256 hash every file — PROVE layer (always runs) ──────────────────
+	// ── SHA-256 hash every file — PROVE layer ────────────────────────────────
 	yellow.Print("  → Hashing plaintext files (SHA-256)... ")
 	hashes, err := crypto.HashFiles(files)
 	if err != nil {
@@ -140,17 +161,46 @@ func runCommit(message string, proofOnly bool) error {
 	cyan.Printf("     Root hash:  %s...\n", rootHash[:32])
 	cyan.Printf("     Hash file:  %s\n", hashFile)
 
-	// ── Register proof record synchronously ───────────────────────────────────
+	// ── Register proof record to disk ────────────────────────────────────────
 	_, err = blockchain.RegisterProof(rootHash, hashFile)
 	if err != nil {
 		yellow.Printf("  ⚠  Warning: could not register proof record: %v\n", err)
 	}
 
-	// ── Stage .sentinel/ files (hashes + proofs created after first git add) ──
-	// Hash file and proof record are created AFTER the first git add . runs.
-	// We must explicitly stage them so they travel with the commit.
-	// This applies to BOTH modes — encryption and proof-only.
-	_ = git.AddSentinelFiles()
+	// ── Anchor to Bitcoin BEFORE git commit ──────────────────────────────────
+	// CRITICAL: anchor must happen BEFORE git commit so the .ots file
+	// gets included in the same commit. 30 second timeout — OTS can be slow.
+	yellow.Print("  → Anchoring to Bitcoin (OpenTimestamps)... ")
+
+	anchorDone := make(chan error, 1)
+	go func(rh, hf string) {
+		_, err := blockchain.AnchorHash(rh, hf)
+		anchorDone <- err
+	}(rootHash, hashFile)
+
+	select {
+	case anchorErr := <-anchorDone:
+		if anchorErr != nil {
+			yellow.Println("pending.")
+			yellow.Printf("     (OTS server unreachable — run 'sentinel proof upgrade' later)\n")
+		} else {
+			green.Println("done. ✓")
+			green.Printf("     .ots file saved — will be committed with your code\n")
+		}
+	case <-time.After(30 * time.Second):
+		yellow.Println("pending.")
+		yellow.Printf("     (timed out — run 'sentinel proof upgrade' after pushing)\n")
+	}
+
+	// ── Stage .sentinel/ files (hash record + proof files) ───────────────────
+	// These are created AFTER the first git add . so we must stage them now.
+	// This ensures hash records and .ots proof files travel with the commit.
+	yellow.Print("  → Staging proof files (.sentinel/)... ")
+	if err := git.AddSentinelFiles(); err != nil {
+		yellow.Println("skipped.")
+	} else {
+		green.Println("done.")
+	}
 
 	// ── Encrypt files — PREVENT layer (skipped in proof-only mode) ───────────
 	if !proofOnly {
@@ -177,7 +227,6 @@ func runCommit(message string, proofOnly bool) error {
 	yellow.Print("  → Running git commit... ")
 	commitHash, err := git.Commit(message)
 	if err != nil {
-		// If encryption mode — decrypt back before failing
 		if !proofOnly && aesKey != nil {
 			_ = crypto.DecryptFiles(files, aesKey)
 		}
@@ -206,33 +255,6 @@ func runCommit(message string, proofOnly bool) error {
 		green.Println("done.")
 	}
 
-	// ── Anchor to Bitcoin via OpenTimestamps ─────────────────────────────────
-	// Run with a 10-second timeout — enough time for the HTTP call to complete.
-	// If it times out, the user can run 'sentinel proof upgrade' later.
-	// We do NOT use a fire-and-forget goroutine because the process exits
-	// before the goroutine completes, so the .ots file never gets saved.
-	yellow.Print("  → Anchoring to Bitcoin (OpenTimestamps)... ")
-
-	anchorDone := make(chan error, 1)
-	go func(rh, hf string) {
-		_, err := blockchain.AnchorHash(rh, hf)
-		anchorDone <- err
-	}(rootHash, hashFile)
-
-	// Wait up to 10 seconds for the HTTP call
-	select {
-	case anchorErr := <-anchorDone:
-		if anchorErr != nil {
-			yellow.Println("pending.")
-			yellow.Printf("     (OTS server unreachable — run 'sentinel proof upgrade' later)\n")
-		} else {
-			green.Println("done. ✓")
-		}
-	case <-time.After(10 * time.Second):
-		yellow.Println("pending.")
-		yellow.Printf("     (took too long — run 'sentinel proof upgrade' in a few minutes)\n")
-	}
-
 	// ── Summary ───────────────────────────────────────────────────────────────
 	fmt.Println()
 	green.Println("  ✓ Commit successful!")
@@ -249,7 +271,6 @@ func runCommit(message string, proofOnly bool) error {
 		green.Printf("  Mode:        full protection (encrypted on GitHub)\n")
 	}
 
-	yellow.Printf("  Blockchain:  see anchor status above\n")
 	fmt.Println()
 	fmt.Println("  Run 'sentinel push'         to push to remote.")
 	fmt.Println("  Run 'sentinel proof status' to check Bitcoin confirmation.")
