@@ -89,11 +89,16 @@ func runStatus() error {
 	muted := color.New(color.FgHiBlack)
 
 	fmt.Println()
-	bold.Println("  SENTINEL STATUS")
-	fmt.Println()
 
+	// ── ASCII Banner ──────────────────────────────────────────────────────────
+	color.New(color.FgYellow, color.Bold).Println(` ███████╗███████╗███╗   ██╗████████╗██╗███╗   ██╗███████╗██╗
+ ██╔════╝██╔════╝████╗  ██║╚══██╔══╝██║████╗  ██║██╔════╝██║
+ ███████╗█████╗  ██╔██╗ ██║   ██║   ██║██╔██╗ ██║█████╗  ██║
+ ╚════██║██╔══╝  ██║╚██╗██║   ██║   ██║██║╚██╗██║██╔══╝  ██║
+ ███████║███████╗██║ ╚████║   ██║   ██║██║ ╚████║███████╗███████╗
+ ╚══════╝╚══════╝╚═╝  ╚═══╝   ╚═╝   ╚═╝╚═╝  ╚═══╝╚══════╝╚══════╝`)
 	fmt.Println()
-	bold.Println("  SENTINEL STATUS")
+	bold.Println("  Your code. Your rights. Protected.")
 	fmt.Println()
 
 	// ── Completed phases ─────────────────────────────────────────────────────
@@ -120,7 +125,7 @@ func runStatus() error {
 	muted.Println("  https://github.com/ttomsin/sentinel")
 	fmt.Println()
 
-	// Git status underneath
+	// ── Git status ───────────────────────────────────────────────────────────
 	cyan.Println("  Git Status:")
 	out, err := git.Status()
 	if err != nil {

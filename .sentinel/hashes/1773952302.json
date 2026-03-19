@@ -1,0 +1,133 @@
+{
+  "sentinel_version": "1.0",
+  "timestamp": "2026-03-19T20:31:42.834786026Z",
+  "files": [
+    {
+      "path": "sentinel-demo.cast",
+      "hash": "e38f34427d0445de1de7eda1bf8d18b53222f4e3705e816cb51177c5e5bf1e11",
+      "size": 7714,
+      "timestamp": "2026-03-19T20:31:42.833466658Z"
+    },
+    {
+      "path": "ai/client.go",
+      "hash": "44bb1cdb181725d46f00361a588b13aa86e2794fe2a44cd6c954389a9c72b707",
+      "size": 8251,
+      "timestamp": "2026-03-19T20:31:42.833559779Z"
+    },
+    {
+      "path": "ai/config.go",
+      "hash": "d50a9ae1ef5733d9619db4b2c60122ee91376ce4669c932159ab205ce0134627",
+      "size": 4616,
+      "timestamp": "2026-03-19T20:31:42.833615969Z"
+    },
+    {
+      "path": "ai/probe.go",
+      "hash": "3d7da744df57b5c29f37bbfaa9dac377a6a5c7b16cb18ffe4ef7621c1b16f563",
+      "size": 9756,
+      "timestamp": "2026-03-19T20:31:42.833689264Z"
+    },
+    {
+      "path": "ai/similarity.go",
+      "hash": "01bd11ebfb944b0eb56b01ab3a4377f0daca9312c88575efeb471abc72618d0a",
+      "size": 9413,
+      "timestamp": "2026-03-19T20:31:42.833791521Z"
+    },
+    {
+      "path": "blockchain/anchor.go",
+      "hash": "6af62ac89d88a90cbb3e0c788d577a37302ad514922500daace6465de618e060",
+      "size": 10860,
+      "timestamp": "2026-03-19T20:31:42.833862737Z"
+    },
+    {
+      "path": "cmd/access.go",
+      "hash": "121c93093087c9bf6c483a8691abae64bca1d28877879e77c71be2fbb6644b8f",
+      "size": 13669,
+      "timestamp": "2026-03-19T20:31:42.833993206Z"
+    },
+    {
+      "path": "cmd/commands.go",
+      "hash": "5411cac15d996870f4843acd85da12c04cb7145526aae2887d33649d43ca290b",
+      "size": 5624,
+      "timestamp": "2026-03-19T20:31:42.834047232Z"
+    },
+    {
+      "path": "cmd/commit.go",
+      "hash": "986afc2a776ccc133a9604a02c0b37ccb548951790c534a6b6cc69e896bc73df",
+      "size": 10524,
+      "timestamp": "2026-03-19T20:31:42.834113865Z"
+    },
+    {
+      "path": "cmd/init.go",
+      "hash": "3973cd5cf7ee984356ca82ca3a51e3e06f26d18b2bd85684725965a94f394f3d",
+      "size": 3828,
+      "timestamp": "2026-03-19T20:31:42.834174739Z"
+    },
+    {
+      "path": "cmd/keygen.go",
+      "hash": "6347107c88ea25165bc2f81abcff65952e1c7ddd754733017834c53bd0adc5d9",
+      "size": 2772,
+      "timestamp": "2026-03-19T20:31:42.834227921Z"
+    },
+    {
+      "path": "cmd/proof.go",
+      "hash": "fb233edad1ceabfe71b4ca365940c4fa701b4a8effa6a5b9227a4508b751fb57",
+      "size": 8489,
+      "timestamp": "2026-03-19T20:31:42.834284671Z"
+    },
+    {
+      "path": "cmd/root.go",
+      "hash": "8e1960b87d524cbe3310a226300cd37eebb4f37a2b47e0cdd9c433210565c914",
+      "size": 2293,
+      "timestamp": "2026-03-19T20:31:42.834318516Z"
+    },
+    {
+      "path": "cmd/scan.go",
+      "hash": "518eff54ef606a8b889ec325b9178259b8e66f0fbcac0d1c5ac07d75b97abbbb",
+      "size": 15966,
+      "timestamp": "2026-03-19T20:31:42.834404136Z"
+    },
+    {
+      "path": "collab/collab.go",
+      "hash": "93c1105de7d6e66c81367f745d1b326da2033128d867da15d5ed8488d4e9bb84",
+      "size": 11991,
+      "timestamp": "2026-03-19T20:31:42.834534886Z"
+    },
+    {
+      "path": "config/config.go",
+      "hash": "a8b911bbea4b6c21bf166adc4126befeabdae0caebb1670742337116a73eb372",
+      "size": 1334,
+      "timestamp": "2026-03-19T20:31:42.834568947Z"
+    },
+    {
+      "path": "crypto/crypto.go",
+      "hash": "ef153e285830498d83285f0e60ddcbb7018f4872060bf6fb7fe976e34e165093",
+      "size": 8444,
+      "timestamp": "2026-03-19T20:31:42.834626409Z"
+    },
+    {
+      "path": "git/wrapper.go",
+      "hash": "8d06b3bbf644fd2381b45366bce8c53dbb3df4f9d012ac110570d7ca85681931",
+      "size": 6370,
+      "timestamp": "2026-03-19T20:31:42.834676766Z"
+    },
+    {
+      "path": "go.mod",
+      "hash": "03268c3b38535cc35fd0c525235a63a6c6d9c246232ff3c636c49b5c3105892f",
+      "size": 405,
+      "timestamp": "2026-03-19T20:31:42.834705795Z"
+    },
+    {
+      "path": "main.go",
+      "hash": "4e96a2f535c2b27ec4b389549cdd89b1a62b61e45e6c539abf96b8661f82efcb",
+      "size": 92,
+      "timestamp": "2026-03-19T20:31:42.834727362Z"
+    },
+    {
+      "path": "main/install.sh",
+      "hash": "fc69a7394628ae694192f1f8f20acb1f452ce860595f5c5a3b8dd27f63aea5fd",
+      "size": 8517,
+      "timestamp": "2026-03-19T20:31:42.834785805Z"
+    }
+  ],
+  "root_hash": "105d7cd6b68949f317ba01dcaabda4008ab3819fcdcbb19da3ddea4f478101c6"
+}
