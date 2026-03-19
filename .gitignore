@@ -1,0 +1,5 @@
+
+
+# Sentinel — keys must NEVER be committed
+.sentinel/keys/
+.sentinel.key

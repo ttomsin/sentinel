@@ -1,0 +1,42 @@
+# Sentinel Configuration
+# Generated: 2026-03-19T12:14:45+01:00
+# Docs: https://sentinel-cli.dev/docs
+
+[sentinel]
+version = "1.0"
+
+[encryption]
+# Algorithm used to encrypt your code before pushing
+algorithm = "AES-256-GCM"
+
+# File patterns to exclude from encryption (e.g. README, LICENSE)
+exclude = [
+  "README.md",
+  "LICENSE",
+  "*.md",
+  ".gitignore",
+  ".sentinel/**",
+]
+
+[hashing]
+# Algorithm used to fingerprint your code
+algorithm = "SHA-256"
+
+# Automatically hash on every sentinel commit
+auto_hash = true
+
+[blockchain]
+# Blockchain network for anchoring hashes
+# Options: "ethereum", "bitcoin", "polygon", "disabled"
+network = "disabled"   # Enable in Phase 3
+
+# Anchor every commit or batch them
+anchor_mode = "async"  # "sync", "async", "batch"
+
+[detect]
+# Phase 4 — Similarity detection
+enabled = false
+
+[collaborators]
+# Phase 5 — Access control
+# Managed via 'sentinel grant' and 'sentinel revoke'
