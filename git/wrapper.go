@@ -55,11 +55,17 @@ func AddAll() error {
 }
 
 // AddSentinelFiles explicitly stages .sentinel/hashes/ and .sentinel/proofs/
-// These directories are created/updated AFTER the first git add . runs during
-// sentinel commit — so they must be staged separately to travel with the commit.
-// .sentinel/keys/ is excluded by .gitignore so git will never touch it.
+// These directories are created AFTER the first git add . runs, so they
+// won't be staged unless we explicitly add them here.
+// Keys are excluded — they are in .gitignore and must never be committed.
 func AddSentinelFiles() error {
-	_, err := run("add", ".sentinel/hashes/", ".sentinel/proofs/", "--ignore-errors")
+	// Stage hash records and proof files explicitly
+	// git add with specific paths — won't touch keys/ because it's in .gitignore
+	_, err := run("add",
+		".sentinel/hashes/",
+		".sentinel/proofs/",
+		".sentinel/collaborators.json",
+	)
 	return err
 }
 
