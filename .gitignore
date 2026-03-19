@@ -3,3 +3,11 @@
 # Sentinel — keys must NEVER be committed
 .sentinel/keys/
 .sentinel.key
+*.exe
+sentinel          ← your compiled binary (no extension on Linux)
+*.so, *.o, *.a    ← compiled Go artifacts
+.idea/ .vscode/   ← your IDE files stay local
+.env              ← never commit secrets
+
+
+# Sentinel — keys must NEVER be committed

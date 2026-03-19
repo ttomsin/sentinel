@@ -1,0 +1,15 @@
+{
+  "sentinel_version": "1.0",
+  "records": [
+    {
+      "root_hash": "33c81ddfcf1167cbc9e8892cb9c412a2f548b955671022e6bc2275102c011b5e",
+      "hash_file": ".sentinel/hashes/1773918927.json",
+      "ots_file": ".sentinel/proofs/33c81ddfcf1167cb.ots",
+      "calendar_server": "https://a.pool.opentimestamps.org",
+      "submitted_at": "2026-03-19T11:15:27.877476319Z",
+      "status": "pending",
+      "bitcoin_tx": "",
+      "bitcoin_block": 0
+    }
+  ]
+}
