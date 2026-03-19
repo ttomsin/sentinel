@@ -86,17 +86,38 @@ func runStatus() error {
 	green := color.New(color.FgGreen)
 	yellow := color.New(color.FgYellow)
 	cyan := color.New(color.FgCyan)
+	muted := color.New(color.FgHiBlack)
 
 	fmt.Println()
 	bold.Println("  SENTINEL STATUS")
 	fmt.Println()
 
-	// Sentinel health checks
-	cyan.Println("  Protection Layers:")
-	green.Println("    ✓  PREVENT   AES-256 encryption active")
-	green.Println("    ✓  PROVE     SHA-256 hashing active")
-	yellow.Println("    ⚡  DETECT    Not yet configured (coming in Phase 4)")
-	yellow.Println("    ⚡  CHAIN     Blockchain anchor pending setup")
+	fmt.Println()
+	bold.Println("  SENTINEL STATUS")
+	fmt.Println()
+
+	// ── Completed phases ─────────────────────────────────────────────────────
+	cyan.Println("  Core Protection (Active):")
+	green.Println("    ✓  PREVENT   AES-256-GCM encryption — AI scrapers see only noise")
+	green.Println("    ✓  PROVE     SHA-256 hashing — every file fingerprinted per commit")
+	green.Println("    ✓  CHAIN     OpenTimestamps — root hash anchored to Bitcoin (free)")
+	green.Println("    ✓  DETECT    AI interrogation — similarity scanning across 4 providers")
+	green.Println("    ✓  ACCESS    HKDF key derivation — collaborator grant/revoke system")
+	green.Println("    ✓  OPEN      --proof-only mode — proof without encryption for open source")
+	fmt.Println()
+
+	// ── Future phases ────────────────────────────────────────────────────────
+	cyan.Println("  Coming Next:")
+	yellow.Println("    ◌  LANGUAGES  Multi-language AST support (JS, Python, Rust, Java)")
+	yellow.Println("    ◌  HUB        Sentinel Hub — self-hostable team dashboard")
+	yellow.Println("    ◌  LEGAL      Court-ready PDF evidence report generator")
+	yellow.Println("    ◌  KEYS       QR code / local network key exchange")
+	yellow.Println("    ◌  REGISTRY   npm, PyPI, crates.io package protection")
+	fmt.Println()
+
+	// ── Contribute ───────────────────────────────────────────────────────────
+	muted.Println("  Open source — contributions welcome:")
+	muted.Println("  https://github.com/ttomsin/sentinel")
 	fmt.Println()
 
 	// Git status underneath
