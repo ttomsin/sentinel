@@ -13,17 +13,47 @@ import (
 var pushCmd = &cobra.Command{
 	Use:   "push",
 	Short: "Push encrypted code to remote (wraps git push)",
-	Long:  `Push your encrypted commits to the remote repository. Identical to 'git push' but with a Sentinel status check first.`,
+	Long:  `Push your encrypted commits to the remote repository. Automatically commits any pending .sentinel/ proof files before pushing.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
+		green := color.New(color.FgGreen, color.Bold)
+		yellow := color.New(color.FgYellow)
+		red := color.New(color.FgRed, color.Bold)
+
 		fmt.Println()
-		color.New(color.FgYellow).Print("  → Pushing to remote (encrypted)... ")
+
+		// ── Auto-commit any pending .sentinel/ changes ────────────────────────
+		// .sentinel/hashes/ and .sentinel/proofs/ may have changed since the
+		// last sentinel commit. We commit them with a plain git commit so they
+		// don't trigger a new proof generation loop.
+		yellow.Print("  → Checking for pending proof files... ")
+
+		// Stage sentinel files
+		_ = git.AddSentinelFiles()
+
+		// Check if there's anything new to commit
+		hasSentinelChanges, _ := git.HasStagedChanges()
+		if hasSentinelChanges {
+			yellow.Println("found.")
+			yellow.Print("  → Committing proof files (git, no new hash)... ")
+			// Use plain git commit — NOT sentinel commit — to avoid creating a new proof
+			if _, err := git.Commit("chore: update sentinel proof records"); err != nil {
+				red.Println("FAILED")
+				return fmt.Errorf("failed to commit proof files: %w", err)
+			}
+			green.Println("done.")
+		} else {
+			green.Println("none.")
+		}
+
+		// ── Push to remote ────────────────────────────────────────────────────
+		yellow.Print("  → Pushing to remote... ")
 		if err := git.Push(); err != nil {
-			color.New(color.FgRed, color.Bold).Println("FAILED")
+			red.Println("FAILED")
 			return err
 		}
-		color.New(color.FgGreen, color.Bold).Println("done.")
+		green.Println("done.")
 		fmt.Println()
-		color.New(color.FgGreen, color.Bold).Println("  ✓ Pushed. Remote only contains encrypted code.")
+		green.Println("  ✓ Pushed successfully.")
 		fmt.Println()
 		return nil
 	},

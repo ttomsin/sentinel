@@ -58,14 +58,28 @@ func AddAll() error {
 // These directories are created AFTER the first git add . runs, so they
 // won't be staged unless we explicitly add them here.
 // Keys are excluded — they are in .gitignore and must never be committed.
+// Silently skips paths that don't exist yet.
 func AddSentinelFiles() error {
-	// Stage hash records and proof files explicitly
-	// git add with specific paths — won't touch keys/ because it's in .gitignore
-	_, err := run("add",
+	paths := []string{
 		".sentinel/hashes/",
 		".sentinel/proofs/",
 		".sentinel/collaborators.json",
-	)
+	}
+
+	// Filter to only paths that actually exist
+	var existing []string
+	for _, p := range paths {
+		if _, err := os.Stat(strings.TrimSuffix(p, "/")); err == nil {
+			existing = append(existing, p)
+		}
+	}
+
+	if len(existing) == 0 {
+		return nil // nothing to stage
+	}
+
+	args := append([]string{"add"}, existing...)
+	_, err := run(args...)
 	return err
 }
 

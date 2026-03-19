@@ -192,15 +192,11 @@ func runCommit(message string, proofOnly bool) error {
 		yellow.Printf("     (timed out — run 'sentinel proof upgrade' after pushing)\n")
 	}
 
-	// ── Stage .sentinel/ files (hash record + proof files) ───────────────────
-	// These are created AFTER the first git add . so we must stage them now.
-	// This ensures hash records and .ots proof files travel with the commit.
-	yellow.Print("  → Staging proof files (.sentinel/)... ")
-	if err := git.AddSentinelFiles(); err != nil {
-		yellow.Println("skipped.")
-	} else {
-		green.Println("done.")
-	}
+	// NOTE: .sentinel/ proof files are NOT staged here intentionally.
+	// Staging them inside sentinel commit would include them in the NEXT hash,
+	// creating an infinite loop: proof → hash changes → new proof → ...
+	// sentinel push handles committing .sentinel/ changes separately
+	// via a plain git commit that does NOT trigger hashing or a new proof.
 
 	// ── Encrypt files — PREVENT layer (skipped in proof-only mode) ───────────
 	if !proofOnly {
